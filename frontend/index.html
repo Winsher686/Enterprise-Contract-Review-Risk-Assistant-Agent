@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>企业合同智能审查与风险辅助 Agent</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <!-- 顶部导航 -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <span class="brand-logo">⚖️</span>
+        <span class="brand-name">合同智能审查</span>
+        <span class="brand-sub">风险辅助 Agent</span>
+      </div>
+      <div class="topbar-right">
+        <span id="user-badge" class="user-badge">未登录</span>
+        <button id="logout-btn" class="btn btn-ghost" style="display:none">退出登录</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 登录页 -->
+  <section id="login-view" class="view login-view">
+    <div class="login-card">
+      <div class="login-logo">⚖️</div>
+      <h1 class="login-title">企业合同智能审查与风险辅助 Agent</h1>
+      <p class="login-sub">上传合同 · 多 Agent 协同审查 · 风险识别 · 报告生成</p>
+      <form id="login-form" class="login-form">
+        <label class="field">
+          <span>用户名</span>
+          <input type="text" id="login-username" placeholder="admin" autocomplete="username" />
+        </label>
+        <label class="field">
+          <span>密码</span>
+          <input type="password" id="login-password" placeholder="admin123" autocomplete="current-password" />
+        </label>
+        <div id="login-error" class="login-error" style="display:none"></div>
+        <button type="submit" class="btn btn-primary btn-block" id="login-btn">登 录</button>
+      </form>
+      <p class="login-hint">默认账号：admin / admin123</p>
+    </div>
+  </section>
+
+  <!-- 主界面 -->
+  <main id="app-view" class="view app-view" style="display:none">
+    <div class="layout">
+      <!-- 侧边栏 -->
+      <aside class="sidebar">
+        <nav class="nav">
+          <a class="nav-item active" data-tab="review" href="#review">📄 合同审查</a>
+          <a class="nav-item" data-tab="contracts" href="#contracts">📁 合同列表</a>
+          <a class="nav-item" data-tab="knowledge" href="#knowledge">📚 知识库</a>
+        </nav>
+        <div class="sidebar-foot">
+          <div class="mode-badge" id="mode-badge">—</div>
+        </div>
+      </aside>
+
+      <!-- 内容区 -->
+      <section class="content">
+        <!-- 合同审查 Tab -->
+        <div id="tab-review" class="tab-panel active">
+          <div class="panel-head">
+            <h2>合同审查</h2>
+            <p>上传合同文件，启动多 Agent 协同审查</p>
+          </div>
+
+          <!-- 上传区 -->
+          <div class="card upload-card">
+            <div class="dropzone" id="dropzone">
+              <div class="dropzone-icon">📤</div>
+              <p>拖拽合同文件到此处，或 <span class="link">点击选择文件</span></p>
+              <p class="dropzone-hint">支持 .txt / .pdf / .docx</p>
+              <input type="file" id="file-input" accept=".txt,.pdf,.docx" hidden />
+            </div>
+            <div id="upload-progress" class="upload-progress" style="display:none">
+              <div class="progress-track"><div class="progress-fill" id="upload-progress-fill"></div></div>
+              <span id="upload-progress-text">上传中…</span>
+            </div>
+            <div id="upload-info" class="upload-info" style="display:none">
+              <div class="upload-info-left">
+                <span class="file-chip" id="upload-filename"></span>
+                <span class="file-size" id="upload-filesize"></span>
+              </div>
+              <div class="upload-info-right">
+                <label class="field-inline">
+                  <span>审查类型</span>
+                  <select id="review-type">
+                    <option value="full">全面审查</option>
+                    <option value="risk">风险专项</option>
+                  </select>
+                </label>
+                <button id="start-review-btn" class="btn btn-primary">开始审查</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 审查进度 -->
+          <div id="review-progress" class="card review-progress" style="display:none">
+            <div class="progress-head">
+              <span class="progress-step" id="progress-step">准备中…</span>
+              <span class="progress-percent" id="progress-percent">0%</span>
+            </div>
+            <div class="progress-track"><div class="progress-fill" id="review-progress-fill"></div></div>
+          </div>
+
+          <!-- 结果区 -->
+          <div id="result-area" class="result-area" style="display:none">
+            <!-- 报告总览 -->
+            <div class="card report-overview" id="report-overview"></div>
+
+            <!-- 风险列表 -->
+            <div class="card">
+              <div class="card-head">
+                <h3>风险清单</h3>
+                <div class="risk-filter" id="risk-filter">
+                  <button class="filter-btn active" data-level="all">全部</button>
+                  <button class="filter-btn" data-level="HIGH">高危</button>
+                  <button class="filter-btn" data-level="MEDIUM">中危</button>
+                  <button class="filter-btn" data-level="LOW">低危</button>
+                </div>
+              </div>
+              <div id="risk-list" class="risk-list"></div>
+            </div>
+
+            <!-- 合同条款 -->
+            <div class="card">
+              <div class="card-head"><h3>合同条款解析</h3></div>
+              <div id="clause-list" class="clause-list"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 合同列表 Tab -->
+        <div id="tab-contracts" class="tab-panel">
+          <div class="panel-head">
+            <h2>合同列表</h2>
+            <p>查看历史合同及其审查状态</p>
+          </div>
+          <div class="card">
+            <div id="contract-list" class="contract-list"></div>
+          </div>
+        </div>
+
+        <!-- 知识库 Tab -->
+        <div id="tab-knowledge" class="tab-panel">
+          <div class="panel-head">
+            <h2>知识库</h2>
+            <p>检索法律法规与企业制度，为审查提供法律依据</p>
+          </div>
+          <div class="card">
+            <div class="search-box">
+              <input type="text" id="kb-query" placeholder="输入关键词，如：违约责任、付款条件、保密…" />
+              <button id="kb-search-btn" class="btn btn-primary">检索</button>
+            </div>
+            <div class="kb-stats" id="kb-stats"></div>
+            <div id="kb-results" class="kb-results"></div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- 轻提示 -->
+  <div id="toast" class="toast" style="display:none"></div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

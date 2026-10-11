@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# 环境配置（保留 example）
+.env
+
+# 数据库
+*.db
+*.sqlite3
+
+# 存储
+storage/contracts/*
+storage/reports/*
+!storage/contracts/.gitkeep
+!storage/reports/.gitkeep
+
+# 知识库中间产物
+knowledge_base/chunks/*
+knowledge_base/embeddings/*
+knowledge_base/cleaned/*
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
